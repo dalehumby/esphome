@@ -1,0 +1,69 @@
+# https://sometechy.website/smart-home/building-wifi-ir-remote-control-for-any-tv-with-esp8266-and-esphome.html
+
+esphome:
+  name: samsung_tv
+  platform: ESP8266
+  board: d1_mini
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  power_save_mode: LIGHT
+  manual_ip:
+    static_ip: 10.0.0.13
+    gateway: 10.0.0.1
+    subnet: 255.255.255.0
+    dns1: 10.0.0.1
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Samsung TV"
+    password: !secret fallback_password
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+remote_transmitter:
+  pin: D1
+  carrier_duty_percent: 50%
+
+binary_sensor:
+  - platform: gpio
+    id: tv_power
+    internal: true
+    pin:
+      number: D2
+      mode: INPUT_PULLDOWN_16
+
+switch:
+  - platform: template
+    name: "Samsung TV"
+    id: samsung_tv
+    lambda: |-
+      if (id(tv_power).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - if:
+          condition:
+            binary_sensor.is_off: tv_power
+          then:
+          - remote_transmitter.transmit_samsung:
+              data: 0xE0E040BF
+    turn_off_action:
+      - if:
+          condition:
+            binary_sensor.is_on: tv_power
+          then:
+           - remote_transmitter.transmit_samsung:
+              data: 0xE0E040BF
+
