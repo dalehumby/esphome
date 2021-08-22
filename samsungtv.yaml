@@ -1,7 +1,7 @@
 # https://sometechy.website/smart-home/building-wifi-ir-remote-control-for-any-tv-with-esp8266-and-esphome.html
 
 esphome:
-  name: samsung_tv
+  name: samsungtv
   platform: ESP8266
   board: d1_mini
 
