@@ -84,3 +84,7 @@ sensor:
           window_size: 20  # 10 min moving average
           send_every: 2
           send_first_at: 2
+
+switch:
+  - platform: restart
+    name: "Particulate Restart"
