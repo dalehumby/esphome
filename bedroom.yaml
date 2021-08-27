@@ -81,6 +81,28 @@ sensor:
           window_size: 3
           send_every: 1
 
+  - platform: atc_mithermometer
+    mac_address: "a4:c1:38:bf:d2:7b"
+    temperature:
+      name: "Bedroom Temperature"
+    humidity:
+      name: "Bedroom Humidity"
+    battery_level:
+      name: "Bedroom Mijia Battery Level"
+    battery_voltage:
+      name: "Bedroom Mijia Battery Voltage"
+
+  - platform: atc_mithermometer
+    mac_address: "a4:c1:38:95:d9:28"
+    temperature:
+      name: "Study Temperature"
+    humidity:
+      name: "Study Humidity"
+    battery_level:
+      name: "Study Mijia Battery Level"
+    battery_voltage:
+      name: "Study Mijia Battery Voltage"
+
 binary_sensor:
   - platform: template
     id: room_presence

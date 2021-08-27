@@ -2,8 +2,8 @@ substitutions:
   roomname: lounge
   static_ip: 10.0.0.14
   yourname: Dale
-  rssi_present: "-73"
-  rssi_not_present: "-85"
+  rssi_present: "-77"
+  rssi_not_present: "-90"
 
 esphome:
   name: $roomname
@@ -80,6 +80,28 @@ sensor:
       - sliding_window_moving_average:
           window_size: 3
           send_every: 1
+
+  - platform: atc_mithermometer
+    mac_address: "a4:c1:38:8f:dc:bd"
+    temperature:
+      name: "Balcony Temperature"
+    humidity:
+      name: "Balcony Humidity"
+    battery_level:
+      name: "Balcony Mijia Battery Level"
+    battery_voltage:
+      name: "Balcony Mijia Battery Voltage"
+
+  - platform: atc_mithermometer
+    mac_address: "a4:c1:38:35:6c:76"
+    temperature:
+      name: "Fridge Temperature"
+    humidity:
+      name: "Fridge Humidity"
+    battery_level:
+      name: "Fridge Mijia Battery Level"
+    battery_voltage:
+      name: "Fridge Mijia Battery Voltage"
 
 binary_sensor:
   - platform: template
