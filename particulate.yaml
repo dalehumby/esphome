@@ -59,6 +59,7 @@ sensor:
     update_interval: 6min
   - platform: dht  # 3V3
     pin: D7
+    model: AM2302
     temperature:
       name: "Particulate Temperature"
     humidity:
