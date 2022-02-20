@@ -88,26 +88,15 @@ sensor:
           send_every: 1
 
   - platform: atc_mithermometer
-    mac_address: "a4:c1:38:8f:dc:bd"
+    mac_address: "a4:c1:38:95:d9:28"
     temperature:
-      name: "Balcony Temperature"
+      name: "Lounge Temperature"
     humidity:
-      name: "Balcony Humidity"
+      name: "Lounge Humidity"
     battery_level:
-      name: "Balcony Mijia Battery Level"
+      name: "Lounge Mijia Battery Level"
     battery_voltage:
-      name: "Balcony Mijia Battery Voltage"
-
-  - platform: atc_mithermometer
-    mac_address: "a4:c1:38:35:6c:76"
-    temperature:
-      name: "Fridge Temperature"
-    humidity:
-      name: "Fridge Humidity"
-    battery_level:
-      name: "Fridge Mijia Battery Level"
-    battery_voltage:
-      name: "Fridge Mijia Battery Voltage"
+      name: "Lounge Mijia Battery Voltage"
 
 binary_sensor:
   - platform: template
