@@ -1,3 +1,4 @@
-secrets.yaml
-**/
 .DS_Store
+.esphome
+env/
+secrets.yaml
