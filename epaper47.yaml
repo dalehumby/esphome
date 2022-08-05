@@ -125,8 +125,6 @@ display:
     lambda: |-
       #define xres 960
       #define yres 540
-      #define x1_cntr xres/4    // left hand column
-      #define x2_cntr xres/4*3  // right hand column
 
       // Quadrants
       it.line(xres/2, 0, xres/2, yres);
@@ -134,48 +132,46 @@ display:
 
 
       // Date and time
-      #define ypad 50
-      it.strftime(x1_cntr, ypad, id(font_std), TextAlign::CENTER, "%a, %e %b", id(tm).now());
-      it.strftime(x1_cntr, yres/4, id(font_clock), TextAlign::CENTER, "%H:%M", id(tm).now());
+      it.strftime(xres/4, yres/8, id(font_std), TextAlign::BOTTOM_CENTER, "%a, %e %b", id(tm).now());
+      it.strftime(xres/4, yres/4, id(font_clock), TextAlign::CENTER, "%H:%M", id(tm).now());
 
 
       // Calendar
-      #define xicon 10
-      #define xtext 40
+      #define xtime xres*7/12
+      #define xname xres*8/12
       #define ylinespace 50
 
-      it.print(x1_cntr, yres/2+ypad, id(font_std), TextAlign::CENTER, "Up next");
+      it.print(xres*3/4, yres/8, id(mdi_calendar), TextAlign::BOTTOM_CENTER, "\U000F00ED");
+      it.print(xres*3/4, yres/8, id(font_std), TextAlign::BOTTOM_CENTER, "Up next");
 
-      int y = yres/4*3 - ylinespace;
-      it.print(xicon, y, id(mdi_calendar), TextAlign::CENTER_LEFT, "\U000F00ED");
-      it.print(xtext, y, id(font_std), TextAlign::CENTER_LEFT, "10:00 Stanup");
-
-      y += ylinespace;
-      it.print(xicon, y, id(mdi_calendar), TextAlign::CENTER_LEFT, "\U000F00ED");
-      it.print(xtext, y, id(font_std), TextAlign::CENTER_LEFT, "10:20 Planning: Backstreet Voice");
+      int y = yres/4 - ylinespace;
+      it.print(xtime, y, id(font_std), TextAlign::CENTER, "10:00");
+      it.print(xname, y, id(font_std), TextAlign::CENTER_LEFT, "Stand-up");
 
       y += ylinespace;
-      it.print(xicon, y, id(mdi_calendar), TextAlign::CENTER_LEFT, "\U000F00ED");
-      it.print(xtext, y, id(font_std), TextAlign::CENTER_LEFT, "11:30 Dale / Manuel 1on1");
+      it.print(xtime, y, id(font_std), TextAlign::CENTER, "10:20");
+      it.print(xname, y, id(font_std), TextAlign::CENTER_LEFT, "Planning");
+
+      y += ylinespace;
+      it.print(xtime, y, id(font_std), TextAlign::CENTER, "11:30");
+      it.print(xname, y, id(font_std), TextAlign::CENTER_LEFT, "Dale / Manuel 1on1");
 
 
       // Weather
-      #define xweather xres*5/8
-      #define xtemp xres*7/8
-      #define xmaxmin xres*11/12
+      #define xweather xres*1/8
+      #define xtemp xres*3/8
 
-      y = yres/4;
+      y = yres*6/8;
       it.print(xweather, y, id(mdi_weather), TextAlign::CENTER, "\U000F0596");
       it.print(xtemp, y, id(font_clock), TextAlign::CENTER, "19°");
-      //it.print(xmaxmin, y, id(font_minmax), TextAlign::BOTTOM_CENTER, "24°");
-      //it.print(xmaxmin, y, id(font_minmax), TextAlign::TOP_CENTER, "16°");
-      //it.print(xmaxmin, y, id(font_minmax), TextAlign::CENTER, "---");
 
-      y = yres/2 - ylinespace;
-      it.print(xweather, y, id(font_std), TextAlign::CENTER, "2.6 mm");
-      it.print(xtemp, ypad, id(font_std), TextAlign::CENTER, "▼ 23°");
-      it.print(xtemp, y, id(font_std), TextAlign::CENTER, "▲ 16°");
-      it.print(xweather, ypad, id(font_std), TextAlign::CENTER, "▁▂▂▁▂▃▃▃");
+      y = yres*7/8;
+      it.print(xweather, y, id(font_std), TextAlign::TOP_CENTER, "2.6 mm");
+      it.print(xtemp, y, id(font_std), TextAlign::TOP_CENTER, "▲ 16°");
+
+      y = yres*5/8;
+      it.print(xweather, y, id(font_std), TextAlign::BOTTOM_CENTER, "▁▂▂▁▂▃▃▃");
+      it.print(xtemp, y, id(font_std), TextAlign::BOTTOM_CENTER, "▼ 23°");
 
 
       // Spotify
