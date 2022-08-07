@@ -118,6 +118,7 @@ font:
       - "\U000F0F38" # weather-tornado
       - "\U000F059D" # weather-windy
       - "\U000F059E" # weather-windy-variant
+      - "\U000F04C7" # spotify
 
 external_components:
   - source: github://ashald/esphome@lilygo-t5-47  #github://guillempages/esphome@patch-2
@@ -260,7 +261,8 @@ display:
               }
             }
           } else {
-            // TODO paused logo?
+            it.print(xres*3/4, yres*5/8, id(font_std), TextAlign::BOTTOM_CENTER, "Play something unexpected");
+            it.print(xres*3/4, yres*6/8, id(mdi_weather), TextAlign::CENTER, "\U000F04C7");
           }
 
 
