@@ -47,30 +47,38 @@ time:
       - seconds: 0
         minutes: /1
         then:
+          - display.page.show: home
           - component.update: epaper
     on_time_sync:
       - then:
+        - display.page.show: home
         - component.update: epaper  # TODO comment out once working
 
 font:
   - file: "gfonts://Roboto"
     id: font_std
     size: 30
-  - file: "gfonts://Roboto"
-    id: font_minmax
-    size: 50
+    glyphs: "!\"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/\\[]|'’åöä"
+  - file: "gfonts://Roboto@700"
+    id: font_media_title
+    size: 30
+    glyphs: "!\"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/\\[]|'’åöä"
   - file: "gfonts://Roboto"
     id: font_clock
     size: 150
     glyphs: "-0123456789:° "
   - file: fonts/FLIPclockblack.ttf
     id: flipclock
-    size: 150
+    size: 350
     glyphs: "0123456789:"
   - file: fonts/lcd.ttf
     id: lcd
-    size: 150
+    size: 350
     glyphs: "0123456789:"
+  - file: "gfonts://Noto Sans Mono"
+    id: font_symbol
+    size: 30
+    glyphs: "-.0123456789° ▲▼▁▂▃▄▅▆▇█▓"
   - file: fonts/materialdesignicons-webfont.ttf
     id: mdi_calendar
     size: 30
@@ -112,85 +120,139 @@ font:
       - "\U000F059E" # weather-windy-variant
 
 external_components:
-  - source: github://ashald/esphome@lilygo-t5-47
+  - source: github://ashald/esphome@lilygo-t5-47  #github://guillempages/esphome@patch-2
     components:
       - lilygo_t5_47
+  - source: github://pr#3255
+    components:
+      - display
+      - online_image
+
+online_image:
+  - url: !secret album_art_url
+    id: album_image
 
 display:
   - platform: lilygo_t5_47
     rotation: 180°
-    update_interval: never
-    full_update_every: 10
+    update_interval: 10s
+    full_update_every: 60
     id: epaper
-    lambda: |-
-      #define xres 960
-      #define yres 540
+    pages:
+      - id: standby
+        lambda: |-
+          #define xres 960
+          #define yres 540
+          it.strftime(xres/2, yres/2+25, id(lcd), TextAlign::CENTER, "%H:%M", id(tm).now());
 
-      // Quadrants
-      it.line(xres/2, 0, xres/2, yres);
-      it.line(0, yres/2, xres, yres/2);
+      - id: home
+        lambda: |-
+          #define xres 960
+          #define yres 540
 
-
-      // Date and time
-      it.strftime(xres/4, yres/8, id(font_std), TextAlign::BOTTOM_CENTER, "%a, %e %b", id(tm).now());
-      it.strftime(xres/4, yres/4, id(font_clock), TextAlign::CENTER, "%H:%M", id(tm).now());
-
-
-      // Calendar
-      #define xtime xres*7/12
-      #define xname xres*8/12
-      #define ylinespace 50
-
-      it.print(xres*3/4, yres/8, id(mdi_calendar), TextAlign::BOTTOM_CENTER, "\U000F00ED");
-      it.print(xres*3/4, yres/8, id(font_std), TextAlign::BOTTOM_CENTER, "Up next");
-
-      int y = yres/4 - ylinespace;
-      it.print(xtime, y, id(font_std), TextAlign::CENTER, "10:00");
-      it.print(xname, y, id(font_std), TextAlign::CENTER_LEFT, "Stand-up");
-
-      y += ylinespace;
-      it.print(xtime, y, id(font_std), TextAlign::CENTER, "10:20");
-      it.print(xname, y, id(font_std), TextAlign::CENTER_LEFT, "Planning");
-
-      y += ylinespace;
-      it.print(xtime, y, id(font_std), TextAlign::CENTER, "11:30");
-      it.print(xname, y, id(font_std), TextAlign::CENTER_LEFT, "Dale / Manuel 1on1");
+          // Quadrants
+          it.line(xres/2, 0, xres/2, yres);
+          it.line(0, yres/2, xres, yres/2);
 
 
-      // Weather
-      #define xweather xres*1/8
-      #define xtemp xres*3/8
-
-      y = yres*6/8;
-      it.print(xweather, y, id(mdi_weather), TextAlign::CENTER, "\U000F0596");
-      it.print(xtemp, y, id(font_clock), TextAlign::CENTER, "19°");
-
-      y = yres*7/8;
-      it.print(xweather, y, id(font_std), TextAlign::TOP_CENTER, "2.6 mm");
-      it.print(xtemp, y, id(font_std), TextAlign::TOP_CENTER, "▲ 16°");
-
-      y = yres*5/8;
-      it.print(xweather, y, id(font_std), TextAlign::BOTTOM_CENTER, "▁▂▂▁▂▃▃▃");
-      it.print(xtemp, y, id(font_std), TextAlign::BOTTOM_CENTER, "▼ 23°");
+          // Date and time
+          it.strftime(xres/4, yres/8, id(font_std), TextAlign::BOTTOM_CENTER, "%a, %e %b", id(tm).now());
+          it.strftime(xres/4, yres/4, id(font_clock), TextAlign::CENTER, "%H:%M", id(tm).now());
 
 
-      // Spotify
-      #define xtitle xres*8/12
-      #define ytitle yres*5/8
-      #define xprogress xres*4/8
-      #define yprogress yres*7/8
+          // Calendar
+          #define xtime xres*7/12
+          #define xname xres*8/12
+          #define ylinespace 50
 
-      it.filled_rectangle(xres/2, yres/2, yres/4, yres/4);
-      it.print(xtitle, ytitle, id(font_minmax), TextAlign::BOTTOM_LEFT, "Porcelain");
-      it.print(xtitle, ytitle, id(font_std), TextAlign::TOP_LEFT, "Moby");
+          it.print(xres*3/4, yres/8, id(mdi_calendar), TextAlign::BOTTOM_CENTER, "\U000F00ED");
+          it.print(xres*3/4, yres/8, id(font_std), TextAlign::BOTTOM_CENTER, "Up next");
 
-      // Progress bar
-      it.line(xres/2, yprogress, xres, yprogress);
-      it.filled_rectangle(xres/2, yprogress-2, xres*7/8-xres/2, 4);
-      it.filled_circle(xres*7/8, yprogress, 5);
-      it.print(xres/2, yprogress, id(font_std), TextAlign::TOP_LEFT, "2:56");
-      it.print(xres, yprogress, id(font_std), TextAlign::TOP_RIGHT, "-0:42");
+          int y = yres/4 - ylinespace;
+          it.print(xtime, y, id(font_std), TextAlign::CENTER, "10:00");
+          it.print(xname, y, id(font_std), TextAlign::CENTER_LEFT, "Stand-up");
 
+          y += ylinespace;
+          it.print(xtime, y, id(font_std), TextAlign::CENTER, "10:20");
+          it.print(xname, y, id(font_std), TextAlign::CENTER_LEFT, "Planning");
+
+          y += ylinespace;
+          it.print(xtime, y, id(font_std), TextAlign::CENTER, "11:30");
+          it.print(xname, y, id(font_std), TextAlign::CENTER_LEFT, "Dale / Manuel 1on1");
+
+
+          // Weather
+          #define xweather xres*1/8
+          #define xtemp xres*3/8
+
+          // Rain sparkline
+          y = yres*5/8;
+          if (id(rainsparkline).has_state() && strcmp(id(rainsparkline).state.c_str(), "▁▁▁▁▁▁▁▁")) {
+            it.printf(xweather, y, id(font_symbol), TextAlign::BOTTOM_CENTER, "%s", id(rainsparkline).state.c_str());
+          } else {
+            it.print(xweather, y, id(font_symbol), TextAlign::BOTTOM_CENTER, "         ");
+          }
+
+          // Weather icon and current temperature
+          y = yres*6/8;
+          if (id(weather).has_state()) {
+            it.print(xweather, y, id(mdi_weather), TextAlign::CENTER, weather_icon_map[id(weather).state.c_str()].c_str());
+          } else {
+            it.print(xweather, y, id(mdi_weather), TextAlign::CENTER, "\U000F0597");
+          }
+          if (id(temperature).has_state()) {
+            it.printf(xtemp, y, id(font_clock), TextAlign::CENTER, "%.0f°", id(temperature).state);
+          } else {
+            it.print(xtemp, y, id(font_clock), TextAlign::CENTER, "-0°");
+          }
+
+          // Rainfall next hour, min/max temp
+          y = yres*7/8;
+          if (id(rainfall).has_state() && id(rainfall).state > 0) {
+            it.printf(xweather, y, id(font_std), TextAlign::TOP_CENTER, "%.1f mm", id(rainfall).state);
+          } else {
+            it.print(xweather, y, id(font_std), TextAlign::TOP_CENTER, "        ");
+          }
+          if (id(tempmin).has_state() && id(tempmax).has_state()) {
+            it.printf(xtemp, y, id(font_symbol), TextAlign::TOP_CENTER, "▲%.0f°▼%.0f°", id(tempmin).state, id(tempmax).state);
+          }
+
+
+          // Spotify
+          #define xtitle xres*9/16
+          #define ytitle yres*5/8
+          #define xprogress xres*4/8
+          #define yprogress yres*7/8
+          #define progress_width xres/2
+
+          if (id(media_state).has_state() && strcmp(id(media_state).state.c_str(), "playing") == 0) {
+            it.image(xres-200, yres/2, id(album_image), COLOR_OFF, COLOR_ON);
+            if (id(media_title).has_state() && id(media_artist).has_state()) {
+              it.printf(xtitle, ytitle, id(font_media_title), TextAlign::BOTTOM_LEFT, "%s", id(media_title).state.c_str());
+              it.printf(xtitle, ytitle, id(font_std), TextAlign::TOP_LEFT, "%s", id(media_artist).state.c_str());
+            }
+
+            // Progress bar
+            if (id(media_duration).has_state() && id(media_start).has_state()) {
+              int t_now = id(tm).now().timestamp;  // Unix time now
+              int t_start = id(media_start).state + 1.6e9;  // Unix time that track started, bug in mqtt that loses precision on large numbers
+              int t_elapsed = t_now - t_start;  // seconds into the track
+              int t_remain = (t_elapsed - id(media_duration).state) * -1;
+              //ESP_LOGD("progress_bar", "now %i, start %i, elapsed %i, remain %i", t_now, t_start, t_elapsed, t_remain);
+
+              if (t_remain >= 0) {
+                it.printf(xres/2, yprogress, id(font_std), TextAlign::TOP_LEFT, "%i:%02i", t_elapsed/60, t_elapsed%60);
+                it.printf(xres, yprogress, id(font_std), TextAlign::TOP_RIGHT, "-%i:%02i", t_remain/60, t_remain%60);
+
+                int progress_elapsed = progress_width * t_elapsed / id(media_duration).state;
+                it.filled_rectangle(xres/2, yprogress-1, progress_width, 3);  // full-time bar
+                it.filled_rectangle(xres/2, yprogress-3, progress_elapsed, 6);  // elapsed bad
+                it.filled_circle(xprogress+progress_elapsed, yprogress, 8);
+              }
+            }
+          } else {
+            // TODO paused logo?
+          }
 
 
 sensor:
@@ -198,16 +260,40 @@ sensor:
     topic: epaper/wx/temp
     id: temperature
   - platform: mqtt_subscribe
+    topic: epaper/wx/min
+    id: tempmin
+  - platform: mqtt_subscribe
+    topic: epaper/wx/max
+    id: tempmax
+  - platform: mqtt_subscribe
     topic: epaper/wx/rain
     id: rainfall
+  - platform: mqtt_subscribe
+    topic: epaper/spotify/duration
+    id: media_duration
+  - platform: mqtt_subscribe
+    topic: epaper/spotify/start
+    id: media_start
 
 text_sensor:
   - platform: mqtt_subscribe
     topic: epaper/wx/icon
     id: weather
   - platform: mqtt_subscribe
+    topic: epaper/wx/rainsparkline
+    id: rainsparkline
+  - platform: mqtt_subscribe
     id: next_event
     topic: epaper/nextevent
+  - platform: mqtt_subscribe
+    topic: epaper/spotify/state
+    id: media_state
+  - platform: mqtt_subscribe
+    topic: epaper/spotify/artist
+    id: media_artist
+  - platform: mqtt_subscribe
+    topic: epaper/spotify/title
+    id: media_title
 
 binary_sensor:
   - platform: gpio
