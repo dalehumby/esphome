@@ -58,11 +58,11 @@ font:
   - file: "gfonts://Roboto"
     id: font_std
     size: 30
-    glyphs: "!\"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/\\[]|'’åöä"
+    glyphs: "!\"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/\\[]|'’åäéöøú"
   - file: "gfonts://Roboto@700"
     id: font_media_title
     size: 30
-    glyphs: "!\"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/\\[]|'’åöä"
+    glyphs: "!\"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/\\[]|'’åäéöøú"
   - file: "gfonts://Roboto"
     id: font_clock
     size: 150
@@ -161,24 +161,21 @@ display:
 
 
           // Calendar
-          #define xtime xres*7/12
-          #define xname xres*8/12
+          #define xpad 20
+          #define xcalendar (xres*6/12 + xpad)
           #define ylinespace 50
 
-          it.print(xres*3/4, yres/8, id(mdi_calendar), TextAlign::BOTTOM_CENTER, "\U000F00ED");
+          //it.print(xres*3/4, yres/8, id(mdi_calendar), TextAlign::BOTTOM_CENTER, "\U000F00ED");
           it.print(xres*3/4, yres/8, id(font_std), TextAlign::BOTTOM_CENTER, "Up next");
 
           int y = yres/4 - ylinespace;
-          it.print(xtime, y, id(font_std), TextAlign::CENTER, "10:00");
-          it.print(xname, y, id(font_std), TextAlign::CENTER_LEFT, "Stand-up");
+          it.print(xcalendar, y, id(font_std), TextAlign::CENTER_LEFT, "10:00  Stand-up");
 
           y += ylinespace;
-          it.print(xtime, y, id(font_std), TextAlign::CENTER, "10:20");
-          it.print(xname, y, id(font_std), TextAlign::CENTER_LEFT, "Planning");
+          it.print(xcalendar, y, id(font_std), TextAlign::CENTER_LEFT, "10:20  Planning");
 
           y += ylinespace;
-          it.print(xtime, y, id(font_std), TextAlign::CENTER, "11:30");
-          it.print(xname, y, id(font_std), TextAlign::CENTER_LEFT, "Dale / Manuel 1on1");
+          it.print(xcalendar, y, id(font_std), TextAlign::CENTER_LEFT, "11:30  Dale / Manuel 1on1");
 
 
           // Weather
@@ -219,14 +216,24 @@ display:
 
 
           // Spotify
-          #define xtitle xres*9/16
+          #define xtitle xcalendar
           #define ytitle yres*5/8
-          #define xprogress xres*4/8
+          #define xprogress_left (xres/2 + xpad)
+          #define xprogress_right (xres - xpad)
           #define yprogress yres*7/8
-          #define progress_width xres/2
+          #define ypad 5
+          #define ytime (yprogress + ypad)
+          #define progress_width (xprogress_right - xprogress_left)
+          #define imgsize 160
+          #define imgpad xpad
+          #define ximg (xres - imgsize - imgpad)
+          #define yimg (yres/2 + imgpad)
+
+          //ESP_LOGD("progress_bar", "xprogress_left %i, _right %i, progress_width %i", xprogress_left, xprogress_right, progress_width);
 
           if (id(media_state).has_state() && strcmp(id(media_state).state.c_str(), "playing") == 0) {
-            it.image(xres-200, yres/2, id(album_image), COLOR_OFF, COLOR_ON);
+            it.image(ximg, yimg, id(album_image), COLOR_OFF, COLOR_ON);
+            it.rectangle(ximg, yimg, imgsize, imgsize);
             if (id(media_title).has_state() && id(media_artist).has_state()) {
               it.printf(xtitle, ytitle, id(font_media_title), TextAlign::BOTTOM_LEFT, "%s", id(media_title).state.c_str());
               it.printf(xtitle, ytitle, id(font_std), TextAlign::TOP_LEFT, "%s", id(media_artist).state.c_str());
@@ -234,20 +241,22 @@ display:
 
             // Progress bar
             if (id(media_duration).has_state() && id(media_start).has_state()) {
-              int t_now = id(tm).now().timestamp;  // Unix time now
-              int t_start = id(media_start).state + 1.6e9;  // Unix time that track started, bug in mqtt that loses precision on large numbers
-              int t_elapsed = t_now - t_start;  // seconds into the track
-              int t_remain = (t_elapsed - id(media_duration).state) * -1;
-              //ESP_LOGD("progress_bar", "now %i, start %i, elapsed %i, remain %i", t_now, t_start, t_elapsed, t_remain);
+              double t_now = id(tm).now().timestamp;  // Unix time now
+              double t_start = id(media_start).state + 1.6e9;  // Unix time that track started, bug in mqtt that loses precision on large numbers
+              int t_elapsed = int(t_now - t_start);  // seconds into the track
+              int t_remain = int((t_elapsed - id(media_duration).state) * -1);
+              //ESP_LOGD("progress_bar", "t_now %f, t_start %f, t_elapsed %i, t_remain %i, media_duration %f", t_now, t_start, t_elapsed, t_remain, id(media_duration).state);
 
               if (t_remain >= 0) {
-                it.printf(xres/2, yprogress, id(font_std), TextAlign::TOP_LEFT, "%i:%02i", t_elapsed/60, t_elapsed%60);
-                it.printf(xres, yprogress, id(font_std), TextAlign::TOP_RIGHT, "-%i:%02i", t_remain/60, t_remain%60);
+                // Elapsed and remaining time
+                it.printf(xprogress_left, ytime, id(font_std), TextAlign::TOP_LEFT, "%i:%02i", t_elapsed/60, t_elapsed%60);
+                it.printf(xprogress_right, ytime, id(font_std), TextAlign::TOP_RIGHT, "-%i:%02i", t_remain/60, t_remain%60);
 
-                int progress_elapsed = progress_width * t_elapsed / id(media_duration).state;
-                it.filled_rectangle(xres/2, yprogress-1, progress_width, 3);  // full-time bar
-                it.filled_rectangle(xres/2, yprogress-3, progress_elapsed, 6);  // elapsed bad
-                it.filled_circle(xprogress+progress_elapsed, yprogress, 8);
+                double progress_elapsed = double(progress_width) * double(t_elapsed) / double(id(media_duration).state);
+                it.filled_rectangle(xprogress_left, yprogress-1, progress_width, 3);  // full-time bar
+                it.filled_rectangle(xprogress_left, yprogress-3, progress_elapsed, 6);  // elapsed bad
+                it.filled_circle(xprogress_left+progress_elapsed, yprogress, 8);
+                //ESP_LOGD("progress_bar", "progress_width %i, progress_elapsed %f", progress_width, progress_elapsed);
               }
             }
           } else {
