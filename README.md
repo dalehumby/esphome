@@ -2,10 +2,14 @@
 
 Mostly here as backup for me, but maybe someone else finds them useful:
 
-- `particulate.yaml` for measuring 2.5 µg and 10 µg particulate, temperature, humidity and illuminance (lux)
-- `samsungtv.yaml` to switch on/off my Samsung TV with IR, and get feedback from USB power
-- `lounge.yaml` and `bedroom.yaml` for [Apple Watch presence detection](https://github.com/dalehumby/ESPHome-Apple-Watch-detection) and Mijia temperature/humidity logging
-- `epaper213.yaml` 2.13 inch epaper clock, weather and next calendar appointment, connecting over internet to home MQTT
+- [`particulate.yaml`](particulate.yaml) for measuring 2.5 µg and 10 µg particulate, temperature, humidity and illuminance (lux)
+- [`samsungtv.yaml`](samsungtv.yaml) to switch on/off my Samsung TV with IR, and get feedback from USB power
+- [`lounge.yaml`](lounge.yaml) and [`bedroom.yaml`](bedroom.yaml) for [Apple Watch presence detection](https://github.com/dalehumby/ESPHome-Apple-Watch-detection) and Mijia temperature/humidity logging
+- [`epaper213.yaml`](epaper213.yaml) 2.13 inch epaper clock, weather and next calendar appointment, connecting over internet to home MQTT
+- [`epaper47.yaml`](epaper47.yaml) 4.7 inch epaper desk picture frame with clock, weather, appointments, Spotify now-playing, connecting over internet to home MQTT
+- [`sms-telegram.yaml`](sms-telegram.yaml) for forwarding SMSs and missed call notifications to a Telegram bot (uses Node-RED to interface to the Telegram Bot API)
+- [`vindriktning.yaml`](vindriktning.yaml) relaces the standard IKEA Vindriktning controller with an ESP8266 and adds other air quality sensors and RGB status LEDs
+
 
 ## Install ESPHome manually
 
