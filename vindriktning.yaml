@@ -1,0 +1,88 @@
+# ESPHome MCU replacement for IKEA Vindriktning.
+# Sensors
+#   - PM1006 PM2.5 particulate sensor (come with IKEA Vindriktning)
+#   - SGP30 for TVOC and eCO2
+#   - BME280 for temparture, humidity, air pressure
+#   - WS2812B led strip of individually addressable RGB LEDs to replace the IKEA led strip on the front
+#   - PWM fan control to make the fan quieter or switch off when not needed
+
+esphome:
+  name: vindriktning
+  friendly_name: Vindriktning
+
+esp8266:
+  board: d1_mini
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  use_address: 10.0.0.14
+  ap:
+    password: !secret fallback_password
+
+captive_portal:
+
+logger:
+
+api:
+
+ota:
+
+i2c:
+  sda: D2
+  scl: D1
+
+uart:
+  baud_rate: 9600
+  tx_pin: D0
+  rx_pin: D5
+
+sensor:
+  - platform: pm1006
+    pm_2_5:
+      name: "2.5µm"
+    update_interval: 20s
+  - platform: sgp30
+    eco2:
+      name: "eCO2"
+      accuracy_decimals: 1
+    tvoc:
+      name: "TVOC"
+      accuracy_decimals: 1
+    store_baseline: yes
+    update_interval: 20s
+  - platform: bme280
+    address: 0x76
+    temperature:
+      name: "Temperature"
+    pressure:
+      name: "Pressure"
+    humidity:
+      name: "Humidity"
+    update_interval: 60s
+
+light:
+  - platform: neopixelbus
+    type: GRB
+    variant: WS2812
+    pin: D3
+    num_leds: 6
+    name: "Status"
+    effects:
+      - addressable_rainbow:
+      - addressable_color_wipe:
+      - addressable_scan:
+      - addressable_twinkle:
+      - addressable_fireworks:
+      - addressable_flicker:
+
+output:
+  - platform: esp8266_pwm
+    pin: D8
+    frequency: 1000 Hz
+    id: fan_output
+
+fan:
+  - platform: speed
+    output: fan_output
+    name: "Fan"
