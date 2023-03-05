@@ -103,7 +103,7 @@ sensor:
       name: "Balcony Mijia Battery Voltage"
 
   - platform: atc_mithermometer
-    mac_address: "a4:c1:38:35:6c:76"
+    mac_address: "a4:c1:38:67:50:3b"
     temperature:
       name: "Kitchen Temperature"
     humidity:
@@ -112,6 +112,17 @@ sensor:
       name: "Kitchen Mijia Battery Level"
     battery_voltage:
       name: "Kitchen Mijia Battery Voltage"
+
+  - platform: atc_mithermometer
+    mac_address: "a4:c1:38:35:6c:76"
+    temperature:
+      name: "Freezer Temperature"
+    humidity:
+      name: "Freezer Humidity"
+    battery_level:
+      name: "Freezer Mijia Battery Level"
+    battery_voltage:
+      name: "Freezer Mijia Battery Voltage"
 
   - platform: atc_mithermometer
     mac_address: "a4:c1:38:95:d9:28"
