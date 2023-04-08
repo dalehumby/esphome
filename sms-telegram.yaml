@@ -76,6 +76,10 @@ switch:
     restore_mode: ALWAYS_ON
 
 sensor:
+  - platform: uptime
+    name: "Uptime Sensor"
+  - platform: wifi_signal
+    name: "WiFi Signal Sensor"
   - platform: sim800l
     rssi:
       name: "Sim800C RSSI"
