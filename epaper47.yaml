@@ -34,6 +34,23 @@ mqtt:
   username: !secret mqtt_username
   password: !secret mqtt_password
   discovery: false
+  on_message:
+    - topic: epaper/atwork
+      then: 
+        - display.page.show: !lambda |-
+            int atwork = atoi(x.c_str());
+            switch(atwork) {
+              case 0:
+                return id(standby);
+              case 1:
+                return id(home);
+              case 2:
+                return id(black);
+              case 3:
+                return id(blank);
+              default:
+                return id(standby);
+            }
 
 logger:
 
@@ -47,22 +64,20 @@ time:
       - seconds: 0
         minutes: /1
         then:
-          - display.page.show: home
           - component.update: epaper
     on_time_sync:
       - then:
-        - display.page.show: home
         - component.update: epaper  # TODO comment out once working
 
 font:
   - file: "gfonts://Roboto"
     id: font_std
     size: 30
-    glyphs: "!\"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/\\[]|'’åäéöøú"
+    glyphs: "!\"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/\\[]|&@#'’åäéöøú"
   - file: "gfonts://Roboto@700"
     id: font_media_title
     size: 30
-    glyphs: "!\"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/\\[]|'’åäéöøú"
+    glyphs: "!\"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/\\[]|&@#'’åäéöøú"
   - file: "gfonts://Roboto"
     id: font_clock
     size: 150
@@ -140,11 +155,24 @@ display:
     full_update_every: 60
     id: epaper
     pages:
+      - id: blank
+        lambda: |-
+          #define xres 960
+          #define yres 540
+          it.rectangle(0, 0, xres, yres);
+
+      - id: black
+        lambda: |-
+          #define xres 960
+          #define yres 540
+          it.filled_rectangle(0, 0, xres, yres);
+
       - id: standby
         lambda: |-
           #define xres 960
           #define yres 540
-          it.strftime(xres/2, yres/2+25, id(lcd), TextAlign::CENTER, "%H:%M", id(tm).now());
+          //it.strftime(xres/2, yres/2+25, id(lcd), TextAlign::CENTER, "%H:%M", id(tm).now());
+          it.strftime(rand() % xres, rand() % yres, id(font_clock), TextAlign::CENTER, "%H:%M", id(tm).now());
 
       - id: home
         lambda: |-
@@ -212,7 +240,7 @@ display:
             it.print(xweather, y, id(font_std), TextAlign::TOP_CENTER, "        ");
           }
           if (id(tempmin).has_state() && id(tempmax).has_state()) {
-            it.printf(xtemp, y, id(font_symbol), TextAlign::TOP_CENTER, "▲%.0f°▼%.0f°", id(tempmin).state, id(tempmax).state);
+            it.printf(xtemp-35, y, id(font_symbol), TextAlign::TOP_CENTER, "▲%.0f°▼%.0f°", id(tempmin).state, id(tempmax).state);
           }
 
 
@@ -229,6 +257,7 @@ display:
           #define imgpad xpad
           #define ximg (xres - imgsize - imgpad)
           #define yimg (yres/2 + imgpad)
+          #define title_length 19
 
           //ESP_LOGD("progress_bar", "xprogress_left %i, _right %i, progress_width %i", xprogress_left, xprogress_right, progress_width);
 
@@ -236,8 +265,8 @@ display:
             it.image(ximg, yimg, id(album_image), COLOR_OFF, COLOR_ON);
             it.rectangle(ximg, yimg, imgsize, imgsize);
             if (id(media_title).has_state() && id(media_artist).has_state()) {
-              it.printf(xtitle, ytitle, id(font_media_title), TextAlign::BOTTOM_LEFT, "%s", id(media_title).state.c_str());
-              it.printf(xtitle, ytitle, id(font_std), TextAlign::TOP_LEFT, "%s", id(media_artist).state.c_str());
+              it.printf(xtitle, ytitle, id(font_media_title), TextAlign::BOTTOM_LEFT, "%s", id(media_title).state.substr(0, title_length).c_str());
+              it.printf(xtitle, ytitle, id(font_std), TextAlign::TOP_LEFT, "%s", id(media_artist).state.substr(0, title_length).c_str());
             }
 
             // Progress bar
