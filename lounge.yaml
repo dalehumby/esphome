@@ -13,13 +13,8 @@ esphome:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
-  manual_ip:
-    static_ip: $static_ip
-    gateway: 10.0.0.1
-    subnet: 255.255.255.0
-    dns1: 10.0.0.1
+  use_address: $static_ip
   ap:
-    ssid: ESPHome $roomname
     password: !secret fallback_password
 
 captive_portal:
@@ -86,50 +81,6 @@ sensor:
       - sliding_window_moving_average:
           window_size: 3
           send_every: 1
-
-  - platform: atc_mithermometer
-    mac_address: "a4:c1:38:bf:d2:7b"
-    temperature:
-      name: "Bedroom Temperature"
-    humidity:
-      name: "Bedroom Humidity"
-    battery_level:
-      name: "Bedroom Mijia Battery Level"
-    battery_voltage:
-      name: "Bedroom Mijia Battery Voltage"
-
-  - platform: atc_mithermometer
-    mac_address: "a4:c1:38:8f:dc:bd"
-    temperature:
-      name: "Balcony Temperature"
-    humidity:
-      name: "Balcony Humidity"
-    battery_level:
-      name: "Balcony Mijia Battery Level"
-    battery_voltage:
-      name: "Balcony Mijia Battery Voltage"
-
-  - platform: atc_mithermometer
-    mac_address: "a4:c1:38:35:6c:76"
-    temperature:
-      name: "Kitchen Temperature"
-    humidity:
-      name: "Kitchen Humidity"
-    battery_level:
-      name: "Kitchen Mijia Battery Level"
-    battery_voltage:
-      name: "Kitchen Mijia Battery Voltage"
-
-  - platform: atc_mithermometer
-    mac_address: "a4:c1:38:95:d9:28"
-    temperature:
-      name: "Lounge Temperature"
-    humidity:
-      name: "Lounge Humidity"
-    battery_level:
-      name: "Lounge Mijia Battery Level"
-    battery_voltage:
-      name: "Lounge Mijia Battery Voltage"
 
 binary_sensor:
   - platform: template

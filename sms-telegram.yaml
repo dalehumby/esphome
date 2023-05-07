@@ -1,0 +1,140 @@
+# Datasheet https://github.com/Xinyuan-LilyGO/LilyGo-T-Call-SIM800
+# Using SIM800C
+
+esphome:
+  name: sms-telegram
+
+esp32:
+  board: esp32dev
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  use_address: 10.0.0.18
+  ap:
+    password: !secret fallback_password
+
+captive_portal:
+
+logger:
+
+api:
+
+ota:
+
+mqtt:
+  broker: !secret mqtt_broker
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  discovery: false  # Publish to MQTT, but not for Home Assistant (HA uses its own API)
+
+uart:
+  baud_rate: 9600
+  tx_pin: 27
+  rx_pin: 26
+
+sim800l:
+  on_sms_received:
+    - lambda: |-
+        id(sms_sender).publish_state(sender);
+        id(sms_message).publish_state(message);
+    - mqtt.publish_json:
+        topic: sms-telegram/sms
+        payload: |-
+          root["from"] = sender;
+          root["text"] = message;
+  on_incoming_call:
+    - lambda: |-
+        id(caller_id_text_sensor).publish_state(caller_id);
+    - mqtt.publish_json:
+        topic: sms-telegram/call
+        payload: |-
+          root["from"] = caller_id;
+
+esp32_ble_tracker:
+
+binary_sensor:
+  - platform: sim800l
+    registered:
+      name: "SIM800C Registered"
+
+text_sensor:
+  - platform: template
+    id: sms_sender
+    name: "SMS Sender"
+  - platform: template
+    id: sms_message
+    name: "SMS Message"
+  - platform: template
+    id: caller_id_text_sensor
+    name: "Caller ID"
+
+switch:
+  - platform: gpio
+    name: "SIM800_POWER"
+    pin: 25
+    restore_mode: ALWAYS_ON
+
+sensor:
+  - platform: uptime
+    name: "Uptime Sensor"
+  - platform: wifi_signal
+    name: "WiFi Signal Sensor"
+  - platform: sim800l
+    rssi:
+      name: "Sim800C RSSI"
+
+  - platform: atc_mithermometer
+    mac_address: "a4:c1:38:bf:d2:7b"
+    temperature:
+      name: "Bedroom Temperature"
+    humidity:
+      name: "Bedroom Humidity"
+    battery_level:
+      name: "Bedroom Mijia Battery Level"
+    battery_voltage:
+      name: "Bedroom Mijia Battery Voltage"
+
+  - platform: atc_mithermometer
+    mac_address: "a4:c1:38:8f:dc:bd"
+    temperature:
+      name: "Balcony Temperature"
+    humidity:
+      name: "Balcony Humidity"
+    battery_level:
+      name: "Balcony Mijia Battery Level"
+    battery_voltage:
+      name: "Balcony Mijia Battery Voltage"
+
+  - platform: atc_mithermometer
+    mac_address: "a4:c1:38:67:50:3b"
+    temperature:
+      name: "Kitchen Temperature"
+    humidity:
+      name: "Kitchen Humidity"
+    battery_level:
+      name: "Kitchen Mijia Battery Level"
+    battery_voltage:
+      name: "Kitchen Mijia Battery Voltage"
+
+  - platform: atc_mithermometer
+    mac_address: "a4:c1:38:35:6c:76"
+    temperature:
+      name: "Freezer Temperature"
+    humidity:
+      name: "Freezer Humidity"
+    battery_level:
+      name: "Freezer Mijia Battery Level"
+    battery_voltage:
+      name: "Freezer Mijia Battery Voltage"
+
+  - platform: atc_mithermometer
+    mac_address: "a4:c1:38:95:d9:28"
+    temperature:
+      name: "Lounge Temperature"
+    humidity:
+      name: "Lounge Humidity"
+    battery_level:
+      name: "Lounge Mijia Battery Level"
+    battery_voltage:
+      name: "Lounge Mijia Battery Voltage"
