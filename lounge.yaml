@@ -1,6 +1,6 @@
 substitutions:
   roomname: lounge
-  static_ip: 10.0.0.14
+  static_ip: 10.0.0.99  # TODO change to actual IP
   yourname: Dale
   rssi_present: "-77"
   rssi_not_present: "-90"
@@ -24,6 +24,7 @@ logger:
 api:
 
 ota:
+  platform: esphome
 
 mqtt:
   broker: !secret mqtt_broker
@@ -105,4 +106,3 @@ script:
     - lambda: |-
         id(room_presence_debounce).publish_state(0);
     - script.execute: presence_timeout
-
