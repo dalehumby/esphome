@@ -35,6 +35,9 @@ wifi:
     password: !secret fallback_password
   power_save_mode: LIGHT
 
+ota:
+  platform: esphome
+
 captive_portal:
 
 logger:
@@ -52,8 +55,6 @@ api:
         blue: 0%
         effect: "None"
 
-ota:
-
 i2c:
   sda: D2
   scl: D1
@@ -63,10 +64,14 @@ uart:
   baud_rate: 9600
   tx_pin: D0
   rx_pin: D5
+  debug:
+    direction: BOTH
+    sequence:
+      - lambda: UARTDebug::log_hex(direction, bytes, ':');
 
 sensor:
   - platform: pm1006
-    update_interval: 20s
+    update_interval: 30s
     pm_2_5:
       name: "2.5µm"
       on_value:
@@ -87,14 +92,14 @@ sensor:
               }
 
   - platform: sgp30
-    update_interval: 1s
+    update_interval: 10s
     eco2:
       name: "eCO2"
       accuracy_decimals: 1
       filters:
         - sliding_window_moving_average:
-            window_size: 20
-            send_every: 20
+            window_size: 6
+            send_every: 3
       on_value:
         then:
           - lambda: |-
@@ -116,8 +121,8 @@ sensor:
       accuracy_decimals: 1
       filters:
         - sliding_window_moving_average:
-            window_size: 20
-            send_every: 20
+            window_size: 6
+            send_every: 3
       on_value:
         then:
           - lambda: |-
@@ -138,7 +143,7 @@ sensor:
       temperature_source: temperature
       humidity_source: humidity
 
-  - platform: bme280
+  - platform: bme280_i2c
     address: 0x76
     update_interval: 60s
     temperature:
@@ -235,7 +240,7 @@ script:
           auto light = id(status_light).make_call();
           light.set_transition_length(3000);
           uint8_t health = max(id(pm25_health).state, max(id(eco2_health).state, id(tvoc_health).state));
-          //ESP_LOGD("update_status_light", "eCO2 %i, TVOC %i -> max %i", id(eco2_health).state, id(tvoc_health).state, health);
+          //ESP_LOGD("update_status_light", "pm25 %i, eCO2 %i, TVOC %i -> max %i", id(pm25_health).state, id(eco2_health).state, id(tvoc_health).state, health);
           switch (health) {
             case 0:
               light.set_rgb(0, 1, 0);  // dark green
@@ -285,5 +290,6 @@ script:
 # > 800  Extremley poor
 
 
-# 2 Jan
-# Current eCO2 baseline: 0x9008, TVOC baseline: 0x9CCF
+#  2 Jan - Current eCO2 baseline: 0x9008, TVOC baseline: 0x9CCF
+#  6 Jan - Current eCO2 baseline: 0x90AC, TVOC baseline: 0x9E84
+# 29 Mar - Current eCO2 baseline: 0x8CB0, TVOC baseline: 0xA985
